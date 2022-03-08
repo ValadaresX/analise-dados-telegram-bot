@@ -15,3 +15,4 @@ class TelegramBot:
     def get_message(self):
         link_request = f"{self.url}getUpdate?timeout=1000"
         result = request.get(link_request)
+        return result

@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import gspread
 import json
 import os
+import pandas as pd
 
 load_dotenv()
 
@@ -13,4 +14,5 @@ class driveBot:
         link_google_sheet = os.getenv("LINK_SHEET")
         sh = self.gc.open_by_key(link_google_sheet)
         worksheet = sh.sheet1
-        return worksheet.get_all_values()
+        dataframe = pd.DataFrame(worksheet.get_all_records())
+        return dataframe

@@ -4,6 +4,9 @@ import json
 import os
 import re
 
+from src.data.transform_dataframe import transform_data
+from src.visualization.visualize import barv_npsmean_by, his_nps
+
 load_dotenv()
 
 
@@ -38,12 +41,24 @@ class TelegramBot:
         return json.loads(result.content)
 
     def create_answer(self, message_text):
-        if message_text in ["oi", "ola", "eae"]:
-            return "Ola, tudo bem?"
+        dataframe = transform_data(self.driverBot.get_data())
+        if message_text in ["/start", "ola", "eae", "menu", "oi", "oie"]:
+            return '''Olá, eu sou o seu assistente de chat, como posso ajudar?
+                    1 - NPS inteno mensal médio por setor\n
+                    2 - NPS inteno mensal médio por contratação\n
+                    3 - Distribuição de NPS interno\n''',0
+        elif message_text == "1":
+            return barv_npsmean_by(dataframe, "setor"),1
+        elif message_text == "2":
+            return barv_npsmean_by(dataframe, "Tipo de Contratacao"),1
+        elif message_text == "3":
+            return his_nps(dataframe),1
         else:
-            return "Não entendi..."
-        
-
+            return '''Desculpe, não entendi o que você quis dizer
+                    Selecione uma das opções do menu\n
+                    1 - NPS inteno mensal médio por setor\n
+                    2 - NPS inteno mensal médio por contratação\n
+                    3 - Distribuição de NPS interno\n''',0
     def send_answer(self, chat_id, answer):
         link_to_send = f"{self.url}sendMessage?chat_id={chat_id}&text={answer}"
         requests.get(link_to_send)

@@ -1,11 +1,11 @@
 from dotenv import load_dotenv
+import os
 import requests
 import json
-import os
-import re
+from src.data.driveBot import driveBot
+from src.data.transform_dataframe import transform_dataframe
+from src.visualization.visualize import barv_npsmean_by, his_nps 
 
-from src.data.transform_dataframe import transform_data
-from src.visualization.visualize import barv_npsmean_by, his_nps
 
 load_dotenv()
 
@@ -14,6 +14,7 @@ class TelegramBot:
     def __init__(self):
         TOKEN = os.getenv("API_KEI")
         self.url = f"https://api.telegram.org/bot{TOKEN}/"
+        self.driverBot = driveBot()
 
     def start(self):
         update_id = None
@@ -26,8 +27,8 @@ class TelegramBot:
                         update_id = message['update_id']
                         chat_id = message['message']['from']['id']
                         message_text = message['message']['text']
-                        answer_bot = self.create_answer(message_text)
-                        self.send_answer(chat_id, answer_bot)
+                        answer_bot, figure_boolean = self.create_answer(message_text)
+                        self.send_answer(chat_id, answer_bot, figure_boolean)
 
                     except:
                         pass
@@ -59,7 +60,17 @@ class TelegramBot:
                     1 - NPS inteno mensal médio por setor\n
                     2 - NPS inteno mensal médio por contratação\n
                     3 - Distribuição de NPS interno\n''',0
-    def send_answer(self, chat_id, answer):
-        link_to_send = f"{self.url}sendMessage?chat_id={chat_id}&text={answer}"
-        requests.get(link_to_send)
-        return
+
+    def send_answer(self, chat_id, answer, figure_boolean):
+        if figure_boolean == 0:
+            link_to_send = f"{self.url}sendMessage?chat_id={chat_id}&text={answer}"
+            requests.get(link_to_send)
+            return
+        else:
+            figure = r"D:\\Projetos_Git\\analise-dados-telegram-bot\\graph_last_generate.png"
+            files = {open(figure, 'rb')}
+            link_to_send = f"{self.url}sendPhoto?chat_id={chat_id}"
+            requests.post(link_to_send, files=files)
+            return
+        
+        

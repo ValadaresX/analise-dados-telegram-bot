@@ -3,7 +3,7 @@ import os
 import requests
 import json
 from src.data.driveBot import driveBot
-from src.data.transform_dataframe import transform_dataframe
+from src.data.transform_dataframe import transform_data, transform_dataframe
 from src.visualization.visualize import barv_npsmean_by, his_nps 
 
 
